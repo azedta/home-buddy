@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -63,7 +64,6 @@ public class User {
     @ToString.Exclude
     @Getter
     @OneToMany(mappedBy = "user",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            orphanRemoval = true)
-    private Set<Medication> medications;
+            cascade = CascadeType.ALL)
+    private List<Medication> medications;
 }
