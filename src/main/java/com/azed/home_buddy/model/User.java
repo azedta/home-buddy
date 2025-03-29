@@ -62,8 +62,15 @@ public class User {
 //    private Treatment treatment;
 
     @ToString.Exclude
+    @OneToOne(mappedBy = "user",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true)
+    private Treatment treatment;
+
+    @ToString.Exclude
     @Getter
     @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL)
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true)
     private List<Medication> medications;
 }

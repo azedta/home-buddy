@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface MedicationService {
-    MedicationDTO addMedication(Long userId, MedicationDTO medication);
+    MedicationDTO addMedication(MedicationDTO medication);
 
     MedicationResponse getAllMedications(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 

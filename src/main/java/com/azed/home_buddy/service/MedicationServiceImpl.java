@@ -3,11 +3,13 @@ package com.azed.home_buddy.service;
 import com.azed.home_buddy.exception.APIException;
 import com.azed.home_buddy.exception.ResourceNotFoundException;
 import com.azed.home_buddy.model.Medication;
+import com.azed.home_buddy.model.Treatment;
 import com.azed.home_buddy.model.User;
 import com.azed.home_buddy.payload.MedicationDTO;
 import com.azed.home_buddy.payload.MedicationResponse;
 import com.azed.home_buddy.repository.MedicationRepository;
 import com.azed.home_buddy.repository.UserRepository;
+import com.azed.home_buddy.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class MedicationServiceImpl implements MedicationService {
@@ -30,16 +33,19 @@ public class MedicationServiceImpl implements MedicationService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Override
-    public MedicationDTO addMedication(Long userId, MedicationDTO medicationDTO) {
+    @Autowired
+    private AuthUtil authUtil;
 
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+
+    @Override
+    public MedicationDTO addMedication(MedicationDTO medicationDTO) {
+
+        User currentUser = authUtil.loggedInUser();
 
         // Check if medication already present or not
         boolean isMedicationNotPresent = true;
 
-        List<Medication> medications = user.getMedications();
+        List<Medication> medications = currentUser.getMedications();
         for (Medication value : medications) {
             if (value.getMedicationName()
                     .equals(medicationDTO.getMedicationName())) {
@@ -50,7 +56,7 @@ public class MedicationServiceImpl implements MedicationService {
 
         if (isMedicationNotPresent) {
             Medication medication = modelMapper.map(medicationDTO, Medication.class);
-            medication.setUser(user);
+            medication.setUser(currentUser);
             Medication savedMedication = medicationRepository.save(medication);
             return modelMapper.map(savedMedication, MedicationDTO.class);
         } else {
@@ -145,17 +151,28 @@ public class MedicationServiceImpl implements MedicationService {
 
         MedicationResponse medicationResponse = new MedicationResponse();
         medicationResponse.setContent(medicationDTOS);
+        medicationResponse.setPageNumber(pageMedications.getNumber());
+        medicationResponse.setPageSize(pageMedications.getSize());
+        medicationResponse.setTotalElements(pageMedications.getTotalElements());
+        medicationResponse.setTotalPages(pageMedications.getTotalPages());
+        medicationResponse.setLastPage(pageMedications.isLast());
         return medicationResponse;
     }
 
     @Override
     public MedicationDTO updateMedication(Long medicationId, MedicationDTO medicationDTO) {
+        User currentUser = authUtil.loggedInUser();
 
         // Get the existing medication from DB
         Medication medicationFromDB = medicationRepository.findById(medicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Medication", "medicationId", medicationId));
 
         Medication medication = modelMapper.map(medicationDTO, Medication.class);
+
+        if(!Objects.equals(medication.getUser(), currentUser)){
+            throw new APIException("User does not have permission to update medication");
+        }
+
         // Update the medication info with the one in request body
         medicationFromDB.setMedicationName(medication.getMedicationName());
         medicationFromDB.setMedicationForm(medication.getMedicationForm());

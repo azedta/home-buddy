@@ -2,6 +2,7 @@ package com.azed.home_buddy.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 public class Medication {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long medicationId;
 
     @NotBlank
@@ -31,7 +33,7 @@ public class Medication {
     @Size(min = 3, message = "Medication form must be at least 3 characters")
     private String medicationForm;
 
-    @NotBlank
+    @NotNull
     private Integer medicationStrength;
 
     private String medicationDescription;
@@ -39,6 +41,11 @@ public class Medication {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "medication",
+    cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+    fetch = FetchType.EAGER)
+    private List<TreatmentMedication> medications = new ArrayList<>();
 
     public Medication(String medicationName, String medicationForm, Integer medicationStrength, String medicationDescription) {
         this.medicationName = medicationName;

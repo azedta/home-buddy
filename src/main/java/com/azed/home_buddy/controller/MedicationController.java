@@ -18,10 +18,9 @@ public class MedicationController {
     @Autowired
     MedicationService medicationService;
 
-    @PostMapping("/public/users/{userId}/medication")
-    public ResponseEntity<MedicationDTO> addMedication(@Valid @RequestBody MedicationDTO medicationDTO,
-                                                       @PathVariable Long userId) {
-        MedicationDTO savedmedicationDTO = medicationService.addMedication(userId, medicationDTO);
+    @PostMapping("/public/new_medication")
+    public ResponseEntity<MedicationDTO> addMedication(@Valid @RequestBody MedicationDTO medicationDTO) {
+        MedicationDTO savedmedicationDTO = medicationService.addMedication(medicationDTO);
         return new ResponseEntity<>(savedmedicationDTO, HttpStatus.CREATED);
     }
 
