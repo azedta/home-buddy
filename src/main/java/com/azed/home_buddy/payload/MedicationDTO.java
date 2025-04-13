@@ -12,8 +12,9 @@ public class MedicationDTO {
     private Long medicationId;
     private String medicationName;
     private String medicationForm;
-    private String medicationStrength;
+    private Integer medicationStrength;
     private String medicationDescription;
+    private Integer quantity;
 
 
 }

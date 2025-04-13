@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,4 +74,12 @@ public class User {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             orphanRemoval = true)
     private List<Medication> medications;
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+//    @JoinTable(name = "user_doses",
+//                joinColumns = @JoinColumn(name = "user_id"),
+//                inverseJoinColumns = @JoinColumn(name = "address_id"))
+    private List<Dose> doses = new ArrayList<>();
 }

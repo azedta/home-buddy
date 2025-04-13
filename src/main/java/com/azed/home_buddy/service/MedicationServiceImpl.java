@@ -3,7 +3,6 @@ package com.azed.home_buddy.service;
 import com.azed.home_buddy.exception.APIException;
 import com.azed.home_buddy.exception.ResourceNotFoundException;
 import com.azed.home_buddy.model.Medication;
-import com.azed.home_buddy.model.Treatment;
 import com.azed.home_buddy.model.User;
 import com.azed.home_buddy.payload.MedicationDTO;
 import com.azed.home_buddy.payload.MedicationResponse;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,13 +67,19 @@ public class MedicationServiceImpl implements MedicationService {
     }
 
     @Override
-    public MedicationResponse getAllMedications(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public MedicationResponse getAllMedications(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String keyword) {
 
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Medication> pageMedications = medicationRepository.findAll(pageDetails);
+        Specification<Medication> spec = Specification.where(null);
+        if(keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("medicationName")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<Medication> pageMedications = medicationRepository.findAll(spec, pageDetails);
 
         List<Medication> medications = pageMedications.getContent();
 
@@ -178,6 +184,7 @@ public class MedicationServiceImpl implements MedicationService {
         medicationFromDB.setMedicationForm(medication.getMedicationForm());
         medicationFromDB.setMedicationStrength(medication.getMedicationStrength());
         medicationFromDB.setMedicationDescription(medication.getMedicationDescription());
+        medicationFromDB.setQuantity(medication.getQuantity());
         // Save to database
         Medication savedMedication = medicationRepository.save(medicationFromDB);
         return modelMapper.map(savedMedication, MedicationDTO.class);

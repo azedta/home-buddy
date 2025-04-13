@@ -26,12 +26,13 @@ public class MedicationController {
 
     @GetMapping("/public/medications")
     public ResponseEntity<MedicationResponse> getAllMedications(
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_MEDICATIONS_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
     ) {
-       MedicationResponse medicationResponse = medicationService.getAllMedications(pageNumber, pageSize, sortBy, sortOrder);
+       MedicationResponse medicationResponse = medicationService.getAllMedications(pageNumber, pageSize, sortBy, sortOrder, keyword);
        return new ResponseEntity<>(medicationResponse, HttpStatus.OK);
     }
 

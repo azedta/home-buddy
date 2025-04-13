@@ -38,6 +38,8 @@ public class Medication {
 
     private String medicationDescription;
 
+    private Integer quantity;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -47,10 +49,12 @@ public class Medication {
     fetch = FetchType.EAGER)
     private List<TreatmentMedication> medications = new ArrayList<>();
 
-    public Medication(String medicationName, String medicationForm, Integer medicationStrength, String medicationDescription) {
+    public Medication(String medicationName, String medicationForm, Integer medicationStrength, String medicationDescription, Integer quantity) {
         this.medicationName = medicationName;
         this.medicationForm = medicationForm;
         this.medicationStrength = medicationStrength;
         this.medicationDescription = medicationDescription;
+        this.quantity = quantity;
+
     }
 }
